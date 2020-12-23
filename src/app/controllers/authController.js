@@ -91,8 +91,36 @@ router.post('/forgot_password', async (req, res) => {
     });
 
   } catch (err) {
-    console.log(err);
     res.status(400).send({ error: 'Erro na senha. Tente novamente.' });
+  }
+});
+
+router.post('/reset_password', async (req, res) => {
+  const { email, token, senha } = req.body;
+
+  try {
+    const user = await User.findOne({ email })
+      .select('+senhaResetToken senhaResetExpires');
+
+    if (!user)
+      return res.status(400).send({ error: 'Usuário não encontrado.' });
+
+    if (token !== user.senhaResetToken)
+      return res.status(400).send({ error: 'Token inválido' });
+
+    const now = new Date();
+
+    if (now > user.senhaResetExpires)
+      return res.status(400).send({ error: 'Token expirou. Gere um novo.' });
+
+    user.senha = senha;
+
+    await user.save();
+
+    res.send();
+
+  } catch (err) {
+    res.status(400).send({ error: 'Não foi possível alterar a senha. Tente novamente.' });
   }
 });
 
