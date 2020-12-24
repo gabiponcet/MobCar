@@ -3,8 +3,8 @@ const bcrypt = require('bcryptjs');
 
 const CarroSchema = new mongoose.Schema({
   modelo: {
-    type: String,
-    required: true,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Modelo',
   },
 
   placa: {

@@ -2,19 +2,13 @@ const mongoose = require('../../database');
 const bcrypt = require('bcryptjs');
 
 const AluguelSchema = new mongoose.Schema({
-  assignedTo: {
+  user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
   },
-
-  carros: [{
+  carro: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Carro',
-  }],
-  valor: {
-    type: Number,
-    required: true,
   },
   data_retirada: {
     type: Date,
@@ -24,6 +18,10 @@ const AluguelSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
+  /* total: {
+    type: Number,
+    required: true,
+  }, */
 });
 
 
