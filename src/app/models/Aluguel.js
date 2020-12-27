@@ -1,5 +1,4 @@
 const mongoose = require('../../database');
-const bcrypt = require('bcryptjs');
 
 const AluguelSchema = new mongoose.Schema({
   user: {
@@ -18,10 +17,10 @@ const AluguelSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  /* total: {
+  total: {
     type: Number,
     required: true,
-  }, */
+  }
 });
 
 

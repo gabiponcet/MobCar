@@ -1,5 +1,6 @@
 const express = require('express');
 const authMiddleware = require('../middlewares/auth');
+const moment = require('moment');
 
 const Carro = require('../models/Carro');
 const Aluguel = require('../models/Aluguel');
@@ -7,14 +8,14 @@ const Modelo = require('../models/Modelo');
 
 const router = express.Router();
 
-/* //ROTAS USUÁRIO
-router.use(authMiddleware);
+//ROTAS USUÁRIO
+/* router.use(authMiddleware);
 
 router.get('/users', async (req, res) => {
   res.send({ ok: true, user: req.userId });
-});
+}); */
 
-
+/* 
 //ROTAS ALUGUEL
 router.get('/:aluguelId', async (req, res) => {
   res.send({ ok: true, user: req.userId });
@@ -41,6 +42,37 @@ router.post('/aluguel', async (req, res) => {
     return res.status(400).send({ error: 'Erro ao gerar aluguel do carro. ' });
   }
 });
+
+//calcular o valor de um alguel
+router.get('/total_aluguel', async (req, res) => {
+  const { aluguel, modelo, data_retirada, data_devolucao } = req.body;
+
+  try {
+    const modelo_valor = await Modelo.findById(modelo)
+      .select('+valor');
+
+
+    const retirada = moment(data_retirada);
+    const devolucao = moment(data_devolucao);
+    const duration = moment.duration(devolucao.diff(retirada));
+    const dias = duration.asDays();
+
+    const total = dias * modelo_valor.valor;
+
+    const aluguel_total = await Aluguel.findByIdAndUpdate(aluguel, {
+      total: total,
+    }, { new: true });
+
+    await aluguel_total.save();
+
+    return res.send({ aluguel_total });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send({ error: 'Não foi possível calcular o valor do aluguel.' });
+  }
+});
+
 
 //ROTAS CARRO
 
@@ -89,6 +121,26 @@ router.delete('/:carroId', async (req, res) => {
 
   } catch (error) {
     return res.status(400).send({ error: 'Não foi possível remover o carro selecionado.' });
+  }
+});
+
+//atualizar carro 
+router.put('/:carroId', async (req, res) => {
+  try {
+    const { modelo, placa, cor, observacoes } = req.body;
+
+    const carro = await Carro.findByIdAndUpdate(req.params.carroId, {
+      modelo,
+      placa,
+      cor,
+      observacoes
+    }, { new: true });
+
+    await carro.save();
+
+    return res.send({ carro });
+  } catch (error) {
+    return res.status(400).send({ error: 'Erro ao atualizar carro. ' });
   }
 });
 //ROTAS MODELO
