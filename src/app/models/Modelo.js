@@ -8,7 +8,7 @@ const ModeloSchema = new mongoose.Schema({
   valor: {
     type: Number,
     required: true,
-  }
+  },
 });
 
 

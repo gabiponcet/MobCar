@@ -15,21 +15,6 @@ router.get('/users', async (req, res) => {
   res.send({ ok: true, user: req.userId });
 }); */
 
-/* 
-//ROTAS ALUGUEL
-router.get('/:aluguelId', async (req, res) => {
-  res.send({ ok: true, user: req.userId });
-});
-
-
-router.put('/aluguel/:id', async (req, res) => {
-  res.send({ ok: true, user: req.userId });
-});
-
-router.delete('/aluguel/:id', async (req, res) => {
-  res.send({ ok: true, user: req.userId });
-});
- */
 
 //criar reserva de aluguel
 router.post('/aluguel', async (req, res) => {
@@ -75,11 +60,22 @@ router.get('/total_aluguel', async (req, res) => {
 
 
 //ROTAS CARRO
-
-//listar carros
+//listar carros com paginação 
 router.get('/carros', async (req, res) => {
   try {
-    const carros = await Carro.find();
+    const { page, perPage } = req.body;
+    const { cor, ord } = req.query;
+
+    const options = {
+      page: parseInt(page, 5),
+      limit: parseInt(perPage, 5),
+      find: {},
+      sort: ord,
+    };
+
+
+    const carros = await Carro.paginate({ cor: cor }, options);
+
 
     return res.send({ carros });
 
@@ -88,8 +84,12 @@ router.get('/carros', async (req, res) => {
   }
 });
 
+
+
+
+
 //listar um carro
-router.get('/:carroId', async (req, res) => {
+router.get('/carros/:carroId', async (req, res) => {
   try {
     const carro = await Carro.findById(req.params.carroId);
 
@@ -147,8 +147,9 @@ router.put('/:carroId', async (req, res) => {
 //listar modelos
 router.get('/modelos', async (req, res) => {
   try {
-    const modelos = await Modelo.find();
+    const modelos = await Modelo.find({ $or: [{ valor: { $lt: 200 } }, { valor: { $lt: 100 } }] });
 
+    console.log(modelos);
     return res.send({ modelos });
 
   } catch (error) {
@@ -157,9 +158,22 @@ router.get('/modelos', async (req, res) => {
 });
 
 
+router.get('/modelos_carros', async (req, res) => {
+  try {
+    const modelos = await Modelo.find().populate('carro');
+
+    console.log(modelos);
+    return res.send({ modelos });
+
+  } catch (error) {
+    return res.status(400).send({ error: 'Não foi possível mostrar os modelos disponíveis.' });
+  }
+});
+
 //criar
 router.post('/modelo', async (req, res) => {
   try {
+
     const modelo = await Modelo.create(req.body);
 
     return res.send({ modelo });
@@ -169,6 +183,22 @@ router.post('/modelo', async (req, res) => {
   }
 });
 //alterar
+router.post('/:modeloId', async (req, res) => {
+  try {
+    const { carro } = req.body;
+
+    const modelo = await Modelo.findById(req.params.modeloId);
+
+    console.log(modelo.modelo);
+    modelo.carroId.push(carro);
+
+    await modelo.save();
+
+    return res.send({ modelo });
+  } catch (error) {
+    return res.status(400).send({ error: 'Erro ao atualizar modelo. ' });
+  }
+});
 //deletar 
 
 module.exports = app => app.use('/projects', router);
