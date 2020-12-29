@@ -9,12 +9,13 @@ const Modelo = require('../models/Modelo');
 const router = express.Router();
 
 //ROTAS USUÁRIO
-/* router.use(authMiddleware);
+router.use(authMiddleware);
 
 router.get('/users', async (req, res) => {
   res.send({ ok: true, user: req.userId });
-}); */
+});
 
+//ROTAS ALUGUEL
 
 //criar reserva de aluguel
 router.post('/aluguel', async (req, res) => {
@@ -143,6 +144,8 @@ router.put('/:carroId', async (req, res) => {
     return res.status(400).send({ error: 'Erro ao atualizar carro. ' });
   }
 });
+
+
 //ROTAS MODELO
 //listar modelos
 router.get('/modelos', async (req, res) => {
@@ -158,19 +161,7 @@ router.get('/modelos', async (req, res) => {
 });
 
 
-router.get('/modelos_carros', async (req, res) => {
-  try {
-    const modelos = await Modelo.find().populate('carro');
-
-    console.log(modelos);
-    return res.send({ modelos });
-
-  } catch (error) {
-    return res.status(400).send({ error: 'Não foi possível mostrar os modelos disponíveis.' });
-  }
-});
-
-//criar
+//criar modelo
 router.post('/modelo', async (req, res) => {
   try {
 
@@ -182,7 +173,8 @@ router.post('/modelo', async (req, res) => {
     return res.status(400).send({ error: 'Erro ao gerar modelo do carro. ' });
   }
 });
-//alterar
+
+//alterar modelo
 router.post('/:modeloId', async (req, res) => {
   try {
     const { carro } = req.body;
@@ -199,6 +191,6 @@ router.post('/:modeloId', async (req, res) => {
     return res.status(400).send({ error: 'Erro ao atualizar modelo. ' });
   }
 });
-//deletar 
+
 
 module.exports = app => app.use('/projects', router);
