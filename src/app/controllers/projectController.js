@@ -9,11 +9,11 @@ const Modelo = require('../models/Modelo');
 const router = express.Router();
 
 //ROTAS USUÁRIO
-router.use(authMiddleware);
+/* router.use(authMiddleware);
 
 router.get('/users', async (req, res) => {
   res.send({ ok: true, user: req.userId });
-});
+}); */
 
 //ROTAS ALUGUEL
 
@@ -25,11 +25,11 @@ router.post('/aluguel', async (req, res) => {
     return res.send({ aluguel });
 
   } catch (error) {
-    return res.status(400).send({ error: 'Erro ao gerar aluguel do carro. ' });
+    return res.status(400).send({ error });
   }
 });
 
-//calcular o valor de um alguel
+//calcular o valor de um aluguel
 router.get('/total_aluguel', async (req, res) => {
   const { aluguel, modelo, data_retirada, data_devolucao } = req.body;
 
@@ -54,8 +54,7 @@ router.get('/total_aluguel', async (req, res) => {
     return res.send({ aluguel_total });
 
   } catch (error) {
-    console.log(error);
-    return res.status(400).send({ error: 'Não foi possível calcular o valor do aluguel.' });
+    return res.status(400).send({ error });
   }
 });
 
@@ -65,23 +64,27 @@ router.get('/total_aluguel', async (req, res) => {
 router.get('/carros', async (req, res) => {
   try {
     const { page, perPage } = req.body;
-    const { cor, ord } = req.query;
+    const { cor, ord, modelo, placa } = req.query;
+
+    let filter = cor ? { cor } : {}
+    filter = modelo ? { ...filter, modelo } : filter
+    filter = placa ? { ...filter, placa } : filter
 
     const options = {
       page: parseInt(page, 5),
       limit: parseInt(perPage, 5),
       find: {},
-      sort: ord,
+      sort: ord ? ord : {},
     };
 
 
-    const carros = await Carro.paginate({ cor: cor }, options);
+    const carros = await Carro.paginate(filter, options);
 
 
     return res.send({ carros });
 
   } catch (error) {
-    return res.status(400).send({ error: 'Não foi possível mostrar os carros disponíveis.' });
+    return res.status(400).send({ error });
   }
 });
 
@@ -97,7 +100,7 @@ router.get('/carros/:carroId', async (req, res) => {
     return res.send({ carro });
 
   } catch (error) {
-    return res.status(400).send({ error: 'Não foi possível mostrar o carro selecionado.' });
+    return res.status(400).send({ error });
   }
 });
 
@@ -109,7 +112,7 @@ router.post('/carro', async (req, res) => {
     return res.send({ carro });
 
   } catch (error) {
-    return res.status(400).send({ error: 'Erro ao gerar carro. ' });
+    return res.status(400).send({ error });
   }
 });
 
@@ -121,7 +124,7 @@ router.delete('/:carroId', async (req, res) => {
     return res.send();
 
   } catch (error) {
-    return res.status(400).send({ error: 'Não foi possível remover o carro selecionado.' });
+    return res.status(400).send({ error });
   }
 });
 
@@ -141,7 +144,7 @@ router.put('/:carroId', async (req, res) => {
 
     return res.send({ carro });
   } catch (error) {
-    return res.status(400).send({ error: 'Erro ao atualizar carro. ' });
+    return res.status(400).send({ error });
   }
 });
 
@@ -156,7 +159,7 @@ router.get('/modelos', async (req, res) => {
     return res.send({ modelos });
 
   } catch (error) {
-    return res.status(400).send({ error: 'Não foi possível mostrar os modelos disponíveis.' });
+    return res.status(400).send({ error });
   }
 });
 
@@ -170,7 +173,7 @@ router.post('/modelo', async (req, res) => {
     return res.send({ modelo });
 
   } catch (error) {
-    return res.status(400).send({ error: 'Erro ao gerar modelo do carro. ' });
+    return res.status(400).send({ error });
   }
 });
 
@@ -188,7 +191,7 @@ router.post('/:modeloId', async (req, res) => {
 
     return res.send({ modelo });
   } catch (error) {
-    return res.status(400).send({ error: 'Erro ao atualizar modelo. ' });
+    return res.status(400).send({ error });
   }
 });
 
